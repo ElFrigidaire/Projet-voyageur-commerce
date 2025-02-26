@@ -1,3 +1,9 @@
+import tkinter as tk
+from tkinter import messagebox
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+
 class City:
     def __init__(self, x, y):
          # Initialise une ville avec ses coordonnées x et y.

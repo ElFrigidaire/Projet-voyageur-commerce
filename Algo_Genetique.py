@@ -5,11 +5,13 @@ import random
 
 class AlgorithmeGenetique:
     # constructeur
-    def __init__(self, population, nb_enfants):
+    def __init__(self, population, nb_enfants, taux_mutation):
         self.population = population
         self.liste_villes = population.liste_villes
         self.nb_individus = population.nb_individus
         self.nb_enfants = nb_enfants
+        self.liste_distances = []
+        self.taux_mutation = taux_mutation
 
     # evolution sur generation
     def evolution(self, nb_generation):
@@ -18,8 +20,10 @@ class AlgorithmeGenetique:
             parents = self.selection()  # Sélectionne les meilleurs chemins (parents)
             self.population.liste_chemins = parents
             enfants = self.recombinaison(parents)
-            enfants = self.mutation(enfants)
+            enfants = self.mutation(enfants, taux_mutation=self.taux_mutation)
             self.population.addChemins(enfants)
+            final_distance, _ = self.population.find_meilleur_distance()
+            self.liste_distances.append(final_distance)
             compteur += 1
 
     # selection
@@ -42,12 +46,11 @@ class AlgorithmeGenetique:
             parent1, parent2 = random.sample(parents, 2)
 
             # Déterminer un point de coupure dans le chemin du premier parent
-            cut1 = random.randint(1, len(parent1.liste_villes) - 2)
+            cut1 = random.randint(0, len(parent1.liste_villes) - 2)
             cut2 = random.randint(cut1, len(parent1.liste_villes))
 
             enfant = [-1] * len(parent1)
             enfant[cut1:cut2] = parent1.liste_villes[cut1:cut2]
-
             equivalence = {
                 parent1.liste_villes[i]: parent2.liste_villes[i]
                 for i in range(cut1, cut2)
@@ -65,13 +68,13 @@ class AlgorithmeGenetique:
                 enfant[i] = ville
 
             # Créer un objet Chemin avec ce nouveau chemin et l'ajouter à la liste des enfants
+            enfant.insert(0, parent1.ville_depart)
             enfants.append(Chemin(liste_villes=enfant))
 
         return enfants
 
     def mutation(self, enfants, taux_mutation=0.05):
         for chemin in enfants:
-            print(len(chemin))
             if random.random() <= taux_mutation:
                 pos1, pos2 = random.randint(
                     0, len(chemin.liste_villes) - 1

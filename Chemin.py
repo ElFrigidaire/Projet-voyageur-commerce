@@ -5,7 +5,8 @@ import math
 class Chemin:
 
     def __init__(self, liste_villes):
-        self.liste_villes = liste_villes
+        self.ville_depart = liste_villes[0]
+        self.liste_villes = liste_villes[1:]
 
         if liste_villes is not None:
             self.distance_totale = self.calculer_score()
@@ -14,7 +15,8 @@ class Chemin:
 
     def setListeVilles(self, liste_villes):
         if liste_villes is not None:
-            self.liste_villes = liste_villes
+            self.ville_depart = liste_villes[0]
+            self.liste_villes = liste_villes[1:]
             self.distance_totale = self.calculer_score()
 
     def distance(self, ville1, ville2):
@@ -22,6 +24,8 @@ class Chemin:
         return math.sqrt((ville1.x - ville2.x) ** 2 + (ville1.y - ville2.y) ** 2)
 
     def calculer_score(self):
+
+        # Calcule la distance parcourue dans ce chemin
         distance_totale = 0
         for i in range(1, len(self.liste_villes)):
             ville_actuelle = self.liste_villes[i - 1]
@@ -30,16 +34,12 @@ class Chemin:
             # distance_totale = round(score, 2)
             if distance_totale == 0:
                 print(f"erreur, score : 0")
-        distance_totale += self.distance(self.liste_villes[-1], self.liste_villes[0])
+        distance_totale += self.distance(self.liste_villes[0], self.ville_depart)
+        distance_totale += self.distance(self.liste_villes[-1], self.ville_depart)
         return distance_totale
 
     def randomVilles(self):
-        copieville = self.villes[:]
-        ville_depart = self.villes[0]
-        sous_liste = self.ville[1:]
-        random.shuffle(sous_liste)
-        nouvelle_liste = [ville_depart] + sous_liste + [ville_depart]
-        return nouvelle_liste
+        random.shuffle(self.liste_villes)
 
     def __str__(self):
         chemin_str = f"Score du chemin : {self.distance_totale}\n"

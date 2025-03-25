@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
+
 with open("./cities.json", "r") as f:
     cities = json.load(f)
     nom_ville = [v["label"] for v in cities["cities"]]
@@ -63,6 +64,7 @@ def run_genetic_algorithm():
         l = 200
 
         liste_villes = []
+        random.seed(42)  # pour la reproductibilité
         for i in range(nb_villes):
             ville = Ville(nom_ville[i], random.randint(0, l), random.randint(0, h))
             liste_villes.append(ville)
@@ -76,6 +78,13 @@ def run_genetic_algorithm():
         algo_genetique = AlgorithmeGenetique(population, nb_enfants, taux_mutation)
         algo_genetique.evolution(nb_generations)
         print(algo_genetique.liste_distances)
+
+        # Sauvegarder les distances dans un fichier texte
+        with open("distances_experiments.txt", "a") as f:
+            f.write(
+                f"Experiment with {nb_villes} cities, {nb_individus} population, {nb_generations} generations, {nb_enfants} nombre d'enfants, {taux_mutation} taux de mutation:\n"
+            )
+            f.write(", ".join(map(str, algo_genetique.liste_distances)) + "\n\n")
 
         # Afficher les distances dans une fenêtre graphique
         # show_distances(chemin.initial_distance, final_distance)
@@ -115,10 +124,12 @@ root.title("Interface Utilisateur pour TSP")
 tk.Label(root, text="Nombre de Villes :").grid(row=0, column=0)
 entry_num_cities = tk.Entry(root)
 entry_num_cities.grid(row=0, column=1)
+entry_num_cities.insert(0, "25")  # Valeur par défaut
 
 tk.Label(root, text="Taille de la Population :").grid(row=1, column=0)
 entry_population_size = tk.Entry(root)
 entry_population_size.grid(row=1, column=1)
+entry_population_size.insert(0, "200")
 button_population_size = tk.Button(
     root, text="Aléatoire", command=generate_random_population_size
 )
@@ -127,6 +138,7 @@ button_population_size.grid(row=1, column=2)
 tk.Label(root, text="Nombre de nouveaux enfants par génération :").grid(row=2, column=0)
 entry_child_size = tk.Entry(root)
 entry_child_size.grid(row=2, column=1)
+entry_child_size.insert(0, "150")
 button_child_size = tk.Button(
     root, text="Aléatoire", command=generate_random_child_size
 )
@@ -135,6 +147,7 @@ button_child_size.grid(row=2, column=2)
 tk.Label(root, text="Fréquence de Mutation :").grid(row=3, column=0)
 entry_mutation_rate = tk.Entry(root)
 entry_mutation_rate.grid(row=3, column=1)
+entry_mutation_rate.insert(0, "0.05")
 button_mutation_rate = tk.Button(
     root, text="Aléatoire", command=generate_random_mutation_rate
 )
@@ -143,6 +156,7 @@ button_mutation_rate.grid(row=3, column=2)
 tk.Label(root, text="Nombre de Générations :").grid(row=4, column=0)
 entry_num_generations = tk.Entry(root)
 entry_num_generations.grid(row=4, column=1)
+entry_num_generations.insert(0, "1000")
 button_num_generations = tk.Button(
     root, text="Aléatoire", command=generate_random_num_generations
 )

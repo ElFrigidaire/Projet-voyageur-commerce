@@ -37,6 +37,42 @@ class AlgorithmeGenetique:
         return meileurs_chemins
 
     # recombinaison
+    # def recombinaison(self, parents):
+
+    #     enfants = []
+
+    #     while len(enfants) < self.nb_enfants:
+    #         # Choisir 2 parents aléatoirement
+    #         parent1, parent2 = random.sample(parents, 2)
+
+    #         # Déterminer un point de coupure dans le chemin du premier parent
+    #         cut1 = random.randint(0, len(parent1.liste_villes) - 2)
+    #         cut2 = random.randint(cut1, len(parent1.liste_villes))
+
+    #         enfant = [-1] * len(parent1)
+    #         enfant[cut1:cut2] = parent1.liste_villes[cut1:cut2]
+    #         equivalence = {
+    #             parent1.liste_villes[i]: parent2.liste_villes[i]
+    #             for i in range(cut1, cut2)
+    #         }
+
+    #         for i in range(len(enfant)):
+
+    #             if i >= cut1 and i < cut2:
+    #                 continue
+
+    #             ville = parent2.liste_villes[i]
+    #             while ville in enfant:
+    #                 ville = equivalence[ville]
+
+    #             enfant[i] = ville
+
+    #         # Créer un objet Chemin avec ce nouveau chemin et l'ajouter à la liste des enfants
+    #         enfant.insert(0, parent1.ville_depart)
+    #         enfants.append(Chemin(liste_villes=enfant))
+
+    #     return enfants
+
     def recombinaison(self, parents):
 
         enfants = []
@@ -45,42 +81,42 @@ class AlgorithmeGenetique:
             # Choisir 2 parents aléatoirement
             parent1, parent2 = random.sample(parents, 2)
 
-            # Déterminer un point de coupure dans le chemin du premier parent
-            cut1 = random.randint(0, len(parent1.liste_villes) - 2)
-            cut2 = random.randint(cut1, len(parent1.liste_villes))
-
             enfant = [-1] * len(parent1)
-            enfant[cut1:cut2] = parent1.liste_villes[cut1:cut2]
-            equivalence = {
-                parent1.liste_villes[i]: parent2.liste_villes[i]
-                for i in range(cut1, cut2)
-            }
+            villes_enfant = {}
+            villes_restantes = {ville: 1 for ville in parent1.liste_villes}
 
             for i in range(len(enfant)):
+                if (parent1.liste_villes[i] in villes_enfant) and (
+                    parent2.liste_villes[i] in villes_enfant
+                ):
+                    enfant[i] = random.sample(list(villes_restantes.keys()), 1)[0]
 
-                if i >= cut1 and i < cut2:
-                    continue
+                elif parent1.liste_villes[i] in villes_enfant:
+                    enfant[i] = parent2.liste_villes[i]
 
-                ville = parent2.liste_villes[i]
-                while ville in enfant:
-                    ville = equivalence[ville]
+                elif parent2.liste_villes[i] in villes_enfant:
+                    enfant[i] = parent1.liste_villes[i]
 
-                enfant[i] = ville
+                else:
+                    enfant[i] = random.sample(
+                        [parent1.liste_villes[i], parent2.liste_villes[i]], 1
+                    )[0]
+                # print(enfant[i])
+                villes_enfant[enfant[i]] = villes_restantes.pop(enfant[i])
 
-            # Créer un objet Chemin avec ce nouveau chemin et l'ajouter à la liste des enfants
             enfant.insert(0, parent1.ville_depart)
             enfants.append(Chemin(liste_villes=enfant))
-
         return enfants
 
     def mutation(self, enfants, taux_mutation=0.05):
         for chemin in enfants:
-            if random.random() <= taux_mutation:
-                pos1, pos2 = random.randint(
-                    0, len(chemin.liste_villes) - 1
-                ), random.randint(0, len(chemin.liste_villes) - 1)
-                chemin.liste_villes[pos1], chemin.liste_villes[pos2] = (
-                    chemin.liste_villes[pos2],
-                    chemin.liste_villes[pos1],
-                )
+            for i in range(0, 2):
+                if random.random() <= taux_mutation:
+                    pos1, pos2 = random.randint(
+                        0, len(chemin.liste_villes) - 1
+                    ), random.randint(0, len(chemin.liste_villes) - 1)
+                    chemin.liste_villes[pos1], chemin.liste_villes[pos2] = (
+                        chemin.liste_villes[pos2],
+                        chemin.liste_villes[pos1],
+                    )
         return enfants
